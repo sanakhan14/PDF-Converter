@@ -1,0 +1,141 @@
+12/28/2017 bug-feature-extraction
+In [1]: from keras.preprocessing import image 
+from keras.applications.vgg16 import preprocess_input 
+from keras.applications.vgg16 import VGG16 
+import numpy as np 
+Using TensorFlow backend. 
+In [2]: #Passing an image through the full vgg16 model 
+model = VGG16(weights = 'imagenet', include_top = True, input_shape = (224,224,3)) 
+img = image.load_img( '../../datasets/cat.jpg', target_size=(224,224) ) 
+img = image.img_to_array( img ) 
+img = np.expand_dims( img, axis=0 ) 
+img = preprocess_input( img ) 
+features = model.predict( img ) 
+features = features.flatten() 
+print(len(features)) #Excepted 1000 features corresponding to 1000 imagenet classe
+s 
+1000 
+http://deeplearningbox.guest.corp.microsoft.com:5005/nbconvert/html/Downloads/tmp/Practical-Deep-Learning-Book/code/chapter4/bug-feature-extraction.ipynb?do… 1/4
+12/28/2017 bug-feature-extraction
+In [3]: model.summary() #To confirm that output of last layer is 1000.  
+_________________________________________________________________ 
+Layer (type)                 Output Shape              Param #    
+================================================================= 
+input_1 (InputLayer)         (None, 224, 224, 3)       0          
+_________________________________________________________________ 
+block1_conv1 (Conv2D)        (None, 224, 224, 64)      1792       
+_________________________________________________________________ 
+block1_conv2 (Conv2D)        (None, 224, 224, 64)      36928      
+_________________________________________________________________ 
+block1_pool (MaxPooling2D)   (None, 112, 112, 64)      0          
+_________________________________________________________________ 
+block2_conv1 (Conv2D)        (None, 112, 112, 128)     73856      
+_________________________________________________________________ 
+block2_conv2 (Conv2D)        (None, 112, 112, 128)     147584     
+_________________________________________________________________ 
+block2_pool (MaxPooling2D)   (None, 56, 56, 128)       0          
+_________________________________________________________________ 
+block3_conv1 (Conv2D)        (None, 56, 56, 256)       295168     
+_________________________________________________________________ 
+block3_conv2 (Conv2D)        (None, 56, 56, 256)       590080     
+_________________________________________________________________ 
+block3_conv3 (Conv2D)        (None, 56, 56, 256)       590080     
+_________________________________________________________________ 
+block3_pool (MaxPooling2D)   (None, 28, 28, 256)       0          
+_________________________________________________________________ 
+block4_conv1 (Conv2D)        (None, 28, 28, 512)       1180160    
+_________________________________________________________________ 
+block4_conv2 (Conv2D)        (None, 28, 28, 512)       2359808    
+_________________________________________________________________ 
+block4_conv3 (Conv2D)        (None, 28, 28, 512)       2359808    
+_________________________________________________________________ 
+block4_pool (MaxPooling2D)   (None, 14, 14, 512)       0          
+_________________________________________________________________ 
+block5_conv1 (Conv2D)        (None, 14, 14, 512)       2359808    
+_________________________________________________________________ 
+block5_conv2 (Conv2D)        (None, 14, 14, 512)       2359808    
+_________________________________________________________________ 
+block5_conv3 (Conv2D)        (None, 14, 14, 512)       2359808    
+_________________________________________________________________ 
+block5_pool (MaxPooling2D)   (None, 7, 7, 512)         0          
+_________________________________________________________________ 
+flatten (Flatten)            (None, 25088)             0          
+_________________________________________________________________ 
+fc1 (Dense)                  (None, 4096)              102764544  
+_________________________________________________________________ 
+fc2 (Dense)                  (None, 4096)              16781312   
+_________________________________________________________________ 
+predictions (Dense)          (None, 1000)              4097000    
+================================================================= 
+Total params: 138,357,544 
+Trainable params: 138,357,544 
+Non-trainable params: 0 
+_________________________________________________________________ 
+http://deeplearningbox.guest.corp.microsoft.com:5005/nbconvert/html/Downloads/tmp/Practical-Deep-Learning-Book/code/chapter4/bug-feature-extraction.ipynb?do… 2/4
+12/28/2017 bug-feature-extraction
+In [4]: #Removing 1 layer should give us 4096 items back 
+model.layers.pop() 
+model.summary() 
+_________________________________________________________________ 
+Layer (type)                 Output Shape              Param #    
+================================================================= 
+input_1 (InputLayer)         (None, 224, 224, 3)       0          
+_________________________________________________________________ 
+block1_conv1 (Conv2D)        (None, 224, 224, 64)      1792       
+_________________________________________________________________ 
+block1_conv2 (Conv2D)        (None, 224, 224, 64)      36928      
+_________________________________________________________________ 
+block1_pool (MaxPooling2D)   (None, 112, 112, 64)      0          
+_________________________________________________________________ 
+block2_conv1 (Conv2D)        (None, 112, 112, 128)     73856      
+_________________________________________________________________ 
+block2_conv2 (Conv2D)        (None, 112, 112, 128)     147584     
+_________________________________________________________________ 
+block2_pool (MaxPooling2D)   (None, 56, 56, 128)       0          
+_________________________________________________________________ 
+block3_conv1 (Conv2D)        (None, 56, 56, 256)       295168     
+_________________________________________________________________ 
+block3_conv2 (Conv2D)        (None, 56, 56, 256)       590080     
+_________________________________________________________________ 
+block3_conv3 (Conv2D)        (None, 56, 56, 256)       590080     
+_________________________________________________________________ 
+block3_pool (MaxPooling2D)   (None, 28, 28, 256)       0          
+_________________________________________________________________ 
+block4_conv1 (Conv2D)        (None, 28, 28, 512)       1180160    
+_________________________________________________________________ 
+block4_conv2 (Conv2D)        (None, 28, 28, 512)       2359808    
+_________________________________________________________________ 
+block4_conv3 (Conv2D)        (None, 28, 28, 512)       2359808    
+_________________________________________________________________ 
+block4_pool (MaxPooling2D)   (None, 14, 14, 512)       0          
+_________________________________________________________________ 
+block5_conv1 (Conv2D)        (None, 14, 14, 512)       2359808    
+_________________________________________________________________ 
+block5_conv2 (Conv2D)        (None, 14, 14, 512)       2359808    
+_________________________________________________________________ 
+block5_conv3 (Conv2D)        (None, 14, 14, 512)       2359808    
+_________________________________________________________________ 
+block5_pool (MaxPooling2D)   (None, 7, 7, 512)         0          
+_________________________________________________________________ 
+flatten (Flatten)            (None, 25088)             0          
+_________________________________________________________________ 
+fc1 (Dense)                  (None, 4096)              102764544  
+_________________________________________________________________ 
+fc2 (Dense)                  (None, 4096)              16781312   
+================================================================= 
+Total params: 134,260,544 
+Trainable params: 134,260,544 
+Non-trainable params: 0 
+_________________________________________________________________ 
+http://deeplearningbox.guest.corp.microsoft.com:5005/nbconvert/html/Downloads/tmp/Practical-Deep-Learning-Book/code/chapter4/bug-feature-extraction.ipynb?do… 3/4
+12/28/2017 bug-feature-extraction
+In [5]: img = image.load_img( '../../datasets/cat.jpg', target_size=(224,224) ) 
+img = image.img_to_array( img ) 
+img = np.expand_dims( img, axis=0 ) 
+img = preprocess_input( img ) 
+features2 = model.predict( img ) 
+features2 = features2.flatten() 
+print(len(features2)) #Excepted 4096 features, but still getting 1000. Why? 
+#No matter how many layers are removed, the output is still 1000 
+1000 
+http://deeplearningbox.guest.corp.microsoft.com:5005/nbconvert/html/Downloads/tmp/Practical-Deep-Learning-Book/code/chapter4/bug-feature-extraction.ipynb?do… 4/4
